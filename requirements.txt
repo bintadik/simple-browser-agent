@@ -1,0 +1,7 @@
+google-genai
+python-dotenv
+pathspec
+selenium
+webdriver-manager
+beautifulsoup4
+
