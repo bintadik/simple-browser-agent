@@ -1,124 +1,165 @@
 # Simple Browser Agent
 
-This project implements a Python-based browser automation agent that leverages the Google Gemini API to dynamically determine and execute actions on a webpage.
+A powerful browser automation agent designed to interact with web pages using AI-driven commands. This project leverages Selenium for browser control and Google Gemini for intelligent action suggestions based on the current page's HTML content and a defined task.
 
-## Table of Contents
+## 🚀 Features
 
--   [Features](#features)
--   [Installation](#installation)
--   [Usage](#usage)
--   [Dependencies](#dependencies)
--   [Project Structure](#project-structure)
--   [Workflow Diagram](#workflow-diagram)
--   [Ignored Files](#ignored-files)
+*   **AI-Powered Navigation:** Utilizes Google Gemini to interpret web page content and suggest the next best action (e.g., click buttons, fill forms).
+*   **Cross-Platform Setup:** Includes setup scripts for both Windows (`setup.bat`) and Unix-like systems (`setup.sh`) to easily prepare the environment.
+*   **Configurable Tasks:** Easily define the target URL and the automation task using a simple `.config` file.
+*   **Error Handling:** Includes basic error handling for failed actions and retries for AI model communication.
+*   **Dynamic Browser Control:** Automates Chrome browser actions through Selenium.
 
-## Features
+## ⚙️ Prerequisites
 
-*   Automated web browsing using Selenium.
-*   Dynamic action generation via Google Gemini API based on current page HTML.
-*   Configurable initial URL and task description.
+Before you begin, ensure you have the following installed:
 
-## Installation
+*   **Python 3.8+**: Download from [python.org](https://www.python.org/downloads/).
+*   **Git**: Download from [git-scm.com](https://git-scm.com/downloads).
+*   **Google Gemini API Key**: Obtain one from the [Google AI Studio](https://makersuite.google.com/app/apikey).
 
-### Prerequisites
+## 📦 Installation
 
-*   Python 3.x
-*   Google Chrome browser installed
+Follow these steps to set up the project on your local machine.
 
-### Setup Steps
-
-You can use the provided setup scripts for convenience.
-
-**For Linux/macOS:**
+### 1. Clone the Repository
 
 ```bash
-./setup.sh
+git clone https://github.com/bintadik/simple-browser-agent.git
+cd simple-browser-agent
 ```
 
-**For Windows:**
+### 2. Setup Environment and Dependencies
 
-```batch
+This project includes convenient setup scripts for different operating systems.
+
+#### On Windows:
+
+```bash
 setup.bat
 ```
 
+#### On Linux/macOS:
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
 These scripts will:
-1.  Create a Python virtual environment (`venv`).
-2.  Activate the virtual environment.
-3.  Install all necessary dependencies from `requirements.txt`.
+*   Create a Python virtual environment (`venv`).
+*   Activate the virtual environment.
+*   Install all necessary Python packages listed in `requirements.txt`.
 
-## Usage
+## 🛠️ Configuration
 
-Before running, ensure you have a `.env` file (for Gemini API key, e.g., `GEMINI_API_KEY=YOUR_API_KEY`) and a `.config` file with `first_url`, `task_description`, and `other_information` in a `[default]` section.
+The agent requires two configuration files: `.env` and `.config`.
 
-Example `.config` content:
+### `.env` File
+
+Create a file named `.env` in the root directory and add your Google Gemini API key:
+
+```
+GOOGLE_API_KEY=YOUR_GEMINI_API_KEY
+```
+Replace `YOUR_GEMINI_API_KEY` with your actual API key.
+
+### `.config` File
+
+Create a file named `.config` in the root directory. This file defines the initial URL and the task description for the browser agent.
+
 ```ini
 [default]
 first_url = https://www.example.com
-task_description = Navigate to the contact page and fill out the form.
-other_information = Use the contact link if available.
+task_description = Browse the website and find the contact information.
+other_information = Look for email addresses or phone numbers.
 ```
 
-To run the agent:
+Adjust the `first_url`, `task_description`, and `other_information` to match your automation needs.
 
-```bash
-# Make sure your virtual environment is activated
-source venv/bin/activate # Linux/macOS
-# or
-venv\Scripts\activate.bat # Windows
+## 🚀 Usage
 
-python simpleBrowserAgent.py
-```
+After installation and configuration, you can run the browser agent:
 
-The agent will open the specified URL and proceed to interact with the page based on Gemini's suggestions for a set number of iterations.
+1.  **Activate the Virtual Environment (if not already active):**
+    *   Windows: `venv\Scripts\activate.bat`
+    *   Linux/macOS: `source venv/bin/activate`
 
-## Dependencies
+2.  **Run the Agent:**
 
-The project relies on the following Python libraries, listed in `requirements.txt`:
+    ```bash
+    python simpleBrowserAgent.py
+    ```
 
-```
-google-genai
-python-dotenv
-pathspec
-selenium
-webdriver-manager
-beautifulsoup4
-```
+The browser will open, and the agent will begin interacting with the specified `first_url` based on the `task_description` and AI's suggestions.
 
-## Project Structure
+## 🌊 How it Works
 
-```
-.
-├── .config
-├── .env
-├── .gitignore
-├── requirements.txt
-├── setup.bat
-├── setup.sh
-└── simpleBrowserAgent.py
-```
-
-## Workflow Diagram
+The `simpleBrowserAgent.py` script orchestrates the entire automation process. Here's a high-level flow:
 
 ```mermaid
 graph TD
-    A[Start] --> B(Load .env & .config);
-    B --> C(Setup Selenium WebDriver);
-    C --> D(Open Initial URL);
-    D --> E{Loop 30 times};
-    E --> F(Get Page HTML Source);
-    F --> G(Prepare Gemini Prompt with HTML);
-    G --> H(Call Gemini API for next Action);
-    H --> I(Execute Selenium Action);
-    I --> E;
-    E -- Loop Ends --> J(Close Browser);
-    J --> K[End];
+    A[Start] --> B[Load Configuration]
+    B --> C[Initialize WebDriver]
+    C --> D[Navigate to Target URL]
+    D --> E[Action Loop Counter = 0]
+    E --> F{Counter < 30?}
+    F -- No --> L[Close Browser]
+    F -- Yes --> G[Extract Page HTML]
+    G --> H[Send HTML + Task to Gemini API]
+    H --> I[Parse Gemini Response]
+    I --> J{Response Type?}
+    J -- ACTION --> K[Execute Selenium Command]
+    J -- FINISHED --> L[Close Browser]
+    J -- INFORMATION --> M[Display Info to User]
+    K --> N[Increment Counter]
+    M --> N
+    N --> F
+    L --> O[End]
+    
+    style A fill:#e1f5fe
+    style O fill:#f3e5f5
+    style J fill:#fff3e0
+    style F fill:#fff3e0
 ```
 
-## Ignored Files
+1.  **Initialization:** Loads API keys and configuration settings.
+2.  **Browser Setup:** Initializes a Chrome browser instance using Selenium WebDriver.
+3.  **Initial Navigation:** Navigates to the `first_url` specified in `.config`.
+4.  **Action Loop:**
+    *   The agent continuously fetches the current page's HTML content.
+    *   This HTML, along with the `task_description` and `other_information`, is sent to the Google Gemini model.
+    *   Gemini processes this input and suggests a single Selenium Python command (e.g., `driver.find_element(By.ID, "myButton").click()`) to perform the next logical step towards completing the task.
+    *   The suggested command is executed within the browser.
+    *   The loop continues for a predefined number of iterations or until Gemini signals that the task is `***FINISHED***` or requires user `***INFORMATION***`.
 
-The following files and directories are ignored by Git, as specified in `.gitignore`:
+## 📂 Project Structure
 
-*   `venv/`
-*   `.env`
-*   `.config`
-*   `.git/`
+```
+simple-browser-agent/
+├── .gitignore
+├── .config
+├── .env                  (Your API key and configurations - user created)
+├── requirements.txt
+├── setup.bat             (Windows setup script)
+├── setup.sh              (Linux/macOS setup script)
+├── simpleBrowserAgent.py (Main browser agent script)
+└── venv/                 (Python virtual environment - automatically created)
+```
+
+*   `.gitignore`: Specifies files and directories to be ignored by Git (like `venv/`, `.env`, `.config`, `.git/`).
+*   `.config`: Stores browser agent's initial URL, task description, and other relevant information.
+*   `.env`: Holds environment variables, such as your Google Gemini API key.
+*   `requirements.txt`: Lists all Python dependencies required for the project.
+*   `setup.bat`: A batch script for setting up the environment on Windows.
+*   `setup.sh`: A shell script for setting up the environment on Linux/macOS.
+*   `simpleBrowserAgent.py`: The core Python script that implements the AI-driven browser agent.
+*   `venv/`: A directory containing the isolated Python virtual environment and its installed packages.
+
+## 🤝 Contributing
+
+Contributions are welcome! If you have suggestions for improvements, new features, or bug fixes, please feel free to open an issue or submit a pull request.
+
+## 📄 License
+
+This project is open-sourced under the MIT License. See the [LICENSE](LICENSE) file for details.
